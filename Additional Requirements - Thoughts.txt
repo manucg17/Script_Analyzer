@@ -1,0 +1,79 @@
+This is the Contents of the c file i used to run the code mentioned above.
+
+#include <stdio.h>
+int main() {
+    printf("hello world");
+    return 0;
+}
+
+I need help with a few things to be more specific:
+
+modifications that needs to be enhnaced in def check_indentation() that needs to be added is:
+- I need to add a check to Skip checking empty lines and user comments.
+- if there is any line that starts with #include in .c file should start without spacing
+- after all the #include or library lines are checked, the next line should also need not have any spacing before it. 
+- Global variables which will be in the format: datatype + variable name and ths ends  with a semicolon (;)
+- datatype + function name + (), it should be followed by {  on the same line after a space
+- function definition should have the intendation of 4 spaces per line till } is encountered where it should be after the entire function definition and this should not have any spacing before the same.
+- now within this function if there is any control structures in C or perl programming scripts like:
+
+For c scripts:
+    For Loop
+    While Loop
+    Do-While Loop
+    If-Else Statement
+    If-Else Ladder
+    Relational Operators
+For Perl scripts:
+    For Loop
+    Foreach Loop
+    While Loop
+    Do-While Loop
+    If-Else Statement
+    If-Elsif-Else Ladder
+    Unless Statement
+    Unless-Else Statement
+    Unless-Elsif Statement
+
+Please note that such examples need to be handled by the code: in the if-else and ladder or nested statements, we need to check indentation where for example:
+if (test_expression1) {
+    // Statements
+} else {
+    // Statements
+}
+
+in case of if- else if - else ladder scenario
+if (test_expression1) {
+    // Statements
+} else if (test_expression2) {
+    // Statements
+} else if (test_expression3) {
+    // Statements
+} else {
+    // Statements
+}
+
+in case of nested if-else:
+if (condition1) {
+    // Executes when condition1 is true
+    if (condition2) {
+        // Executes when condition2 is true
+    } else {
+        // Executes when condition2 is false
+    }
+} else {
+    // Executes when condition1 is false
+}
+
+
+-------------------------------------------------------------------
+
+#include <stdio.h>
+int main() {
+    printf("hello world");
+    return 0;
+}
+
+There is no spaces before #include, but the error is thrown. 
+Also int main is correctly spaced, since it is a function or a main function call. This should be the same with globally declared variables as well.
+after int main, it is followed by () and a space and { after which the block of code starts on a new line with 4 space indent which is how it should be and the statements need to end with
