@@ -1,0 +1,286 @@
+This is the Contents of the c file i used to run the code mentioned above.
+
+#include <stdio.h>
+int main() {
+    printf("hello world");
+    return 0;
+}
+
+I need help with a few things to be more specific:
+
+modifications that needs to be enhnaced in def check_indentation() that needs to be added is:
+- I need to add a check to Skip checking empty lines and user comments.
+- if there is any line that starts with #include in .c file should start without spacing
+- after all the #include or library lines are checked, the next line should also need not have any spacing before it. 
+- Global variables which will be in the format: datatype + variable name and ths ends  with a semicolon (;)
+- datatype + function name + (), it should be followed by {  on the same line after a space
+- function definition should have the intendation of 4 spaces per line till } is encountered where it should be after the entire function definition and this should not have any spacing before the same.
+- now within this function if there is any control structures in C or perl programming scripts like:
+
+For c scripts:
+    For Loop
+    While Loop
+    Do-While Loop
+    If-Else Statement
+    If-Else Ladder
+    Relational Operators
+For Perl scripts:
+    For Loop
+    Foreach Loop
+    While Loop
+    Do-While Loop
+    If-Else Statement
+    If-Elsif-Else Ladder
+    Unless Statement
+    Unless-Else Statement
+    Unless-Elsif Statement
+
+Please note that such examples need to be handled by the code: in the if-else and ladder or nested statements, we need to check indentation where for example:
+if (test_expression1) {
+    // Statements
+} else {
+    // Statements
+}
+
+in case of if- else if - else ladder scenario
+if (test_expression1) {
+    // Statements
+} else if (test_expression2) {
+    // Statements
+} else if (test_expression3) {
+    // Statements
+} else {
+    // Statements
+}
+
+in case of nested if-else:
+if (condition1) {
+    // Executes when condition1 is true
+    if (condition2) {
+        // Executes when condition2 is true
+    } else {
+        // Executes when condition2 is false
+    }
+} else {
+    // Executes when condition1 is false
+}
+
+
+-------------------------------------------------------------------
+
+#include <stdio.h>
+int main() {
+    printf("hello world");
+    return 0;
+}
+
+There is no spaces before #include, but the error is thrown. 
+Also int main is correctly spaced, since it is a function or a main function call. This should be the same with globally declared variables as well.
+after int main, it is followed by () and a space and { after which the block of code starts on a new line with 4 space indent which is how it should be and the statements need to end with
+
+
+It looks like the script is running successfully and performing the desired analysis. Here's a breakdown of the issues found:
+
+Indentation issue at line 1: Incorrect indentation for #include.
+Syntax issue at line 1: Incorrect syntax after #include.
+Indentation issue at lines 2, 3, and 4: Incorrect indentation.
+Consistency issue at line 5: Inconsistent line ending.
+Whitespace issue at lines 3 and 4: Excessive whitespace within line.
+The script successfully completed the analysis after identifying these issues.
+
+The following edits to the code should be done so as to handle these additional requirements:
+1. There should be no spaces in any line that contains the #include. This is specific to "c" file.
+2. If there is a line that starts with the syntax: datatype+name+(), it should be followed by a space followed by "{" on the same line and nothing more should be on this line
+3. The next line should have to start with 4 spaces and the code should be written based on all the requirements as present in code.
+4. All lines under this line should have 4 spaces intendation present.
+5. Please note that such examples need to be handled by the code: in the if-else and ladder or nested statements, we need to check indentation where for example:
+if (test_expression1) {
+    // Statements
+} else {
+    // Statements
+}
+
+in case of if- else if - else ladder scenario
+if (test_expression1) {
+    // Statements
+} else if (test_expression2) {
+    // Statements
+} else if (test_expression3) {
+    // Statements
+} else {
+    // Statements
+}
+
+in case of nested if-else:
+if (condition1) {
+    // Executes when condition1 is true
+    if (condition2) {
+        // Executes when condition2 is true
+    } else {
+        // Executes when condition2 is false
+    }
+} else {
+    // Executes when condition1 is false
+}
+
+
+Lines reviewed:
+int main() {
+    printf("hello world");
+    return 0;
+
+This is corresponding to line 3 and 5 is has the correct syntax of 4 spaces and ends with ;
+
+Indentation issue at line 2: Incorrect indentation.
+Indentation issue at line 3: Incorrect indentation.
+Indentation issue at line 4: Incorrect indentation.
+Whitespace issue at line 3: Excessive whitespace within line.
+Whitespace issue at line 4: Excessive whitespace within line.
+
+    def check_indentation(self):
+        try:
+            with open(self.script_path, "r") as script_file:
+                lines = script_file.readlines()
+
+                inside_function = False
+                indentation_level = 0
+
+                for line_number, line in enumerate(lines, start=1):
+                    # Skip empty lines and user comments
+                    if not line.strip() or line.strip().startswith("//") or line.strip().startswith("/*"):
+                        continue
+
+                    # Check #include lines
+                    if line.strip().startswith("#include"):
+                        # Check for correct syntax after #include
+                        if not re.match(r'^#include\s+<\w+\.h>\s*$', line.strip()):
+                            print(f"Syntax issue at line {line_number}: Incorrect syntax after #include.")
+                        continue  # Skip further checks for #include lines
+
+                    # Check for global variables
+                    if ";" in line and not inside_function:
+                        if line.strip().endswith(";"):
+                            print(f"Indentation issue at line {line_number}: Incorrect indentation for global variable declaration.")
+
+                    # Check for function definitions
+                    if "{" in line and "(" in line:
+                        inside_function = True
+                        if line.strip().endswith("{"):
+                            indentation_level += 1
+
+                    if inside_function:
+                        # Check control structures indentation
+                        control_structures = ["for", "while", "do", "if", "else", "elif", "elseif", "unless"]
+                        for control_structure in control_structures:
+                            if control_structure in line.strip():
+                                if not line.strip().startswith(" " * 4 * (indentation_level + 1)):
+                                    print(f"Indentation issue at line {line_number}: Incorrect indentation for {control_structure} statement.")
+                        if "}" in line:
+                            indentation_level -= 1
+                            if indentation_level == 0:
+                                inside_function = False
+                                continue
+
+                    # Check indentation of non-empty, non-comment lines
+                    if not line.strip().startswith(" " * 4):
+                        print(f"Indentation issue at line {line_number}: Incorrect indentation.")
+                    
+        except FileNotFoundError:
+            print(f"File not found: {self.script_path}")
+        except Exception as e:
+            print(f"Error during indentation check: {str(e)}")
+
+
+	def check_indentation(self):
+		try:
+			with open(self.script_path, "r") as script_file:
+				lines = script_file.readlines()
+
+				inside_function = False
+				indentation_level = 0
+
+				for line_number, line in enumerate(lines, start=1):
+					# Skip empty lines and user comments
+					if not line.strip() or line.strip().startswith("//") or line.strip().startswith("/*"):
+						continue
+
+					# Check #include lines
+					if line.strip().startswith("#include"):
+						# Check for correct syntax after #include
+						if not re.match(r'^#include\s+<\w+\.h>\s*$', line.strip()):
+							print(f"Syntax issue at line {line_number}: Incorrect syntax after #include.")
+						continue  # Skip further checks for #include lines
+
+					# Check for global variables
+					if ";" in line and not inside_function:
+						if line.strip().endswith(";"):
+							print(f"Indentation issue at line {line_number}: Incorrect indentation for global variable declaration.")
+
+					# Check for function definitions
+					if "{" in line and "(" in line:
+						inside_function = True
+						if line.strip().endswith("{"):
+							indentation_level += 1
+
+					if inside_function:
+						# Check control structures indentation
+						control_structures = ["for", "while", "do", "if", "else", "elif", "elseif", "unless"]
+						for control_structure in control_structures:
+							if control_structure in line.strip():
+								if not line.strip().startswith(" " * 4 * (indentation_level + 1)):
+									print(f"Indentation issue at line {line_number}: Incorrect indentation for {control_structure} statement.")
+						if "}" in line:
+							indentation_level -= 1
+							if indentation_level == 0:
+								inside_function = False
+								continue
+
+					# Check indentation of non-empty, non-comment lines
+					if not line.strip().startswith(" " * 4 * indentation_level):
+						print(f"Indentation issue at line {line_number}: Incorrect indentation.")
+
+		except FileNotFoundError:
+			print(f"File not found: {self.script_path}")
+		except Exception as e:
+			print(f"Error during indentation check: {str(e)}")
+			
+			
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Allot Requirements:
+All symbols should have a prefix which identifies their module.
+Variables/functions start with lower-case.
+Types/classes start with upper-case.
+Constants are all upper-case.
+Global variables start with 'g_'.
+Members start with 'm_'
+Pointers start with 'p'.
+
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+All the symbols should have a prefix which identifies their module.
+What is a possible logic to have a check for this?
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+Variables/functions start with lower-case.
+What is a possible logic to have a check for this?
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+Types/classes start with upper-case.
+What is a possible logic to have a check for this?
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+Constants are all upper-case.
+What is a possible logic to have a check for this?
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+Global variables start with 'g_'.
+What is a possible logic to have a check for this?
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+Members start with 'm_'
+What is a possible logic to have a check for this?
+--
+when a person says the requirement in the .c or .cpp scripts is to have:
+Pointers start with 'p'.
+What is a possible logic to have a check for this?

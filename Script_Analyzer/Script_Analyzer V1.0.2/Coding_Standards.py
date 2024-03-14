@@ -1,15 +1,12 @@
 import re
 import logging
-import subprocess
-import platform
-import smtplib
 from pathlib import Path
 from datetime import datetime
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from pycparser import c_ast, parse_file
 
 class ScriptAnalyzer:
     def __init__(self, script_path):
@@ -45,19 +42,22 @@ class ScriptAnalyzer:
             # Check code reuse
             self.check_code_reuse()
 
+            # Check performance considerations
+            self.check_performance()
+
             # Check whitespace usage
             self.check_whitespace()
 
-            # # Check memory leakages (for C scripts)
-            # if str(self.script_path).endswith(".cpp"):
-            #     self.check_memory_leaks()
-            # elif str(self.script_path).endswith(".pl"):
-            #     self.check_perl_specific_checks()
+            # Check memory leakages (for C scripts)
+            if str(self.script_path).endswith(".c"):
+                self.check_memory_leaks()
+            elif str(self.script_path).endswith(".pl"):
+                self.check_perl_specific_checks()
             
             # Print summary of the analysis results
-            print("Script Analysis completed.")
+            print("Script analysis completed successfully.")
             # Creating Log with Analysis in Log Directory    
-            logging.info("Script Analysis completed.")
+            logging.info("Script analysis completed successfully.")
             
             # Email the log file
             sender_email = 'vaishnavi.m@thinkpalm.com'
@@ -87,10 +87,10 @@ class ScriptAnalyzer:
                     if "\t" in line:
                         logging.warning(f"Indentation issue at line {line_number}: TAB space used. Convert TABs to spaces.")
 
-                # Check #include lines
+                    # Check #include lines
                     if line.strip().startswith("#include"):
                         # Check for correct syntax after #include
-                        if not re.match(r'^#include\s+(<\S+\.h>|"\S+\.h")\s*$', line.strip()):
+                        if not re.match(r'^#include\s+<\w+\.h>\s*$', line.strip()):
                             logging.warning(f"Syntax issue at line {line_number}: Incorrect syntax after #include.")
                         continue  # Skip further checks for #include lines
 
@@ -125,48 +125,19 @@ class ScriptAnalyzer:
         except Exception as e:
             logging.error(f"Error during indentation check: {str(e)}")
 
+
     def check_naming_conventions(self):
         try:
-            # Load the C file
-            ast = parse_file(str(self.script_path), use_cpp=True)
+            with open(self.script_path, "r") as script_file:
+                lines = script_file.readlines()
 
-            # This is a visitor class that checks naming conventions
-            class NamingConventionVisitor(c_ast.NodeVisitor):
-                def __init__(self):
-                    self.module_prefix = None
+            for line_number, line in enumerate(lines, start=1):
+                # Remove leading/trailing whitespaces
+                stripped_line = line.strip()
 
-                def visit_FileAST(self, node):
-                    if node.ext:
-                        for ext in node.ext:
-                            if isinstance(ext, c_ast.Decl):
-                                if ext.name and ext.name.startswith('MODULE_'):
-                                    self.module_prefix = ext.name
-                    self.generic_visit(node)
-
-                def visit_FuncDef(self, node):
-                    if not node.decl.name[0].islower():
-                        logging.warning(f"Function {node.decl.name} does not start with a lowercase letter")
-                    self.visit(node.body)
-
-                def visit_Decl(self, node):
-                    if isinstance(node.type, c_ast.TypeDecl):
-                        if node.name.islower():
-                            logging.warning(f"Variable {node.name} does not start with an uppercase letter")
-                        elif node.name.upper() == node.name:
-                            logging.warning(f"Constant {node.name} should not be all uppercase")
-                        elif self.module_prefix and not node.name.startswith(self.module_prefix):
-                            logging.warning(f"Symbol {node.name} should have a prefix '{self.module_prefix}'")
-                    elif isinstance(node.type, c_ast.PtrDecl):
-                        if not node.name.startswith('p_'):
-                            logging.warning(f"Pointer variable {node.name} should start with 'p_'")
-                    elif isinstance(node.type, c_ast.Struct):
-                        if not node.name[0].isupper():
-                            logging.warning(f"Type/Class {node.name} does not start with an uppercase letter")
-                    self.generic_visit(node)
-
-            # Visit each node in the AST
-            v = NamingConventionVisitor()
-            v.visit(ast)
+                # Check naming conventions based on file extension
+                if str(self.script_path).endswith((".c", ".pl")):
+                    self.check_common_naming_conventions(stripped_line, line_number)
 
         except FileNotFoundError:
             logging.error(f"File not found: {self.script_path}")
@@ -174,12 +145,25 @@ class ScriptAnalyzer:
             logging.error(f"Error during naming conventions check: {str(e)}")
 
 
+    def check_common_naming_conventions(self, line, line_number):
+        # Implement common naming conventions checks
+        # Example: Check if variable names follow a consistent pattern
+        if str(self.script_path).endswith(".c"):
+            # Check for C-specific naming conventions
+            if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', line):
+                logging.warning(f"Naming convention issue at line {line_number}: {line}")
+        elif str(self.script_path).endswith(".pl"):
+            # Check for Perl-specific naming conventions
+            if re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', line):
+                logging.warning(f"Naming convention issue at line {line_number}: {line}")
+
+
     def check_modularization(self):
         try:
             with open(self.script_path, "r") as script_file:
                 lines = script_file.readlines()
 
-            if str(self.script_path).endswith(".cpp"):
+            if str(self.script_path).endswith(".c"):
                 num_functions = 0
                 for line in lines:
                     # Exclude the main function from the count
@@ -248,22 +232,27 @@ class ScriptAnalyzer:
             logging.error(f"Error during code reuse check: {str(e)}")
 
 
+    def check_performance(self):
+        try:
+            # Placeholder for performance checks
+            pass
+        except Exception as e:
+            logging.error(f"Error during performance check: {str(e)}")
+
+
     def check_whitespace(self):
         try:
             with open(self.script_path, "r") as script_file:
                 lines = script_file.readlines()
 
                 for line_number, line in enumerate(lines, start=1):
-                    # Skip empty lines and user comments
-                    if not line.strip() or line.strip().startswith("//") or line.strip().startswith("/*"):
-                        continue
-
                     # Check for excessive whitespace within lines
-                    stripped_line = line.strip()  # strip leading and trailing spaces
-                    if '  ' in stripped_line:  # check for two or more consecutive spaces
-                        logging.warning(f"Whitespace issue at line {line_number}: Excessive whitespace within line.")
-                    if line.rstrip('\n').endswith(' '):  # check if line ends with a space
-                        logging.warning(f"Whitespace issue at line {line_number}: Line ends with a space.")
+                    if not line.strip().startswith("#include"):
+                        stripped_line = line.strip()  # strip leading and trailing spaces
+                        if '  ' in stripped_line:  # check for two or more consecutive spaces
+                            logging.warning(f"Whitespace issue at line {line_number}: Excessive whitespace within line.")
+                        if line.rstrip('\n').endswith(' '):  # check if line ends with a space
+                            logging.warning(f"Whitespace issue at line {line_number}: Line ends with a space.")
         except FileNotFoundError:
             logging.error(f"File not found: {self.script_path}")
         except Exception as e:
@@ -272,24 +261,10 @@ class ScriptAnalyzer:
 
     def check_memory_leaks(self):
         try:
-            cpp_file = str(self.script_path)
-            executable_name = cpp_file.replace('.cpp', '.exe') if platform.system() == 'Windows' else cpp_file.replace('.cpp', '')
-
-            if platform.system() == 'Windows':
-                subprocess.check_call(['g++', cpp_file, '-o', executable_name])
-                subprocess.check_call(['drmemory', '-logdir', 'logs', executable_name])
-            else:
-                subprocess.check_call(['g++', cpp_file, '-o', executable_name])
-                valgrind_output = subprocess.check_output(['valgrind', '--leak-check=full', executable_name])
-                if 'no leaks are possible' not in valgrind_output.decode('utf-8'):
-                    logging.warning("Memory leak detected!")
-
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Error running memory leak check: {e}")
-        except FileNotFoundError:
-            logging.error("Memory leak check tool not found. Please install the required tool.")
+            # Placeholder for memory leak checks
+            pass
         except Exception as e:
-            logging.error(f"Error checking memory leaks: {str(e)}")
+            logging.error(f"Error during memory leak check: {str(e)}")
 
 
     def check_perl_specific_checks(self):
@@ -337,20 +312,13 @@ def send_email(sender_email, sender_password, recipient_email, attachment_path):
         server.sendmail(sender_email, recipient_email, message.as_string())
         server.quit()
         print("Email sent successfully!")
-
-    except (smtplib.SMTPException, IOError, OSError, Exception) as e:
-        if isinstance(e, smtplib.SMTPException):
-            print(f"Failed to send email: {e}")
-        elif isinstance(e, IOError):
-            print(f"I/O error occurred: {e}")
-        elif isinstance(e, OSError):
-            print(f"OS error occurred: {e}")
-        else:
-            print(f"Unexpected error: {e}")
-        logging.error(f"Error occurred while sending email: {e}")
-
+        
+    except smtplib.SMTPException as e:
+        print(f"Failed to send email: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
 
 if __name__ == "__main__":
-    script_path = input('Enter the Full Path to the Access the Script that needs to be Reviewed (Supports -> "PathLocation_to_File.cpp"):\n')
+    script_path = input("Enter the Full Path to the Access the Script that needs to be Reviewed (Supports -> C (*.c) CPP (*.cpp) or Perl (*.pl or *.pm)): ")
     analyzer = ScriptAnalyzer(script_path)
     analyzer.run_analysis()

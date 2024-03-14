@@ -1,0 +1,98 @@
+2024-03-14 13:41:08,694 - WARNING - Syntax issue at line 2: Incorrect syntax after #include.
+2024-03-14 13:41:08,695 - WARNING - Indentation issue at line 132: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,695 - WARNING - Indentation issue at line 161: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,697 - WARNING - Indentation issue at line 509: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,698 - WARNING - Indentation issue at line 529: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,699 - WARNING - Indentation issue at line 582: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,699 - WARNING - Indentation issue at line 583: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,701 - WARNING - Indentation issue at line 776: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,703 - WARNING - Indentation issue at line 1210: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,703 - WARNING - Indentation issue at line 1211: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,703 - WARNING - Indentation issue at line 1299: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,703 - WARNING - Indentation issue at line 1358: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,703 - WARNING - Indentation issue at line 1359: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,703 - WARNING - Indentation issue at line 1360: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,704 - WARNING - Indentation issue at line 1417: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,704 - WARNING - Indentation issue at line 1418: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,704 - WARNING - Indentation issue at line 1419: TAB space used. Convert TABs to spaces.
+2024-03-14 13:41:08,706 - ERROR - Error during naming conventions check: Unable to invoke 'cpp'.  Make sure its path was passed correctly
+Original error: [WinError 2] The system cannot find the file specified
+2024-03-14 13:41:08,715 - WARNING - Consistency issue: Incorrect syntax at the end of the file. Expected '}', found ''.
+2024-03-14 13:41:08,719 - WARNING - Whitespace issue at line 5: Line ends with a space.
+2024-03-14 13:41:08,719 - WARNING - Whitespace issue at line 28: Excessive whitespace within line.
+2024-03-14 13:41:08,719 - WARNING - Whitespace issue at line 29: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 33: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 34: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 35: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 37: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 53: Line ends with a space.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 86: Line ends with a space.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 171: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 188: Line ends with a space.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 253: Line ends with a space.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 266: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 284: Excessive whitespace within line.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 450: Line ends with a space.
+2024-03-14 13:41:08,720 - WARNING - Whitespace issue at line 462: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 491: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 513: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 514: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 546: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 559: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 587: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 588: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 589: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 590: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 591: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 611: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 611: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 625: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 627: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 630: Excessive whitespace within line.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 630: Line ends with a space.
+2024-03-14 13:41:08,721 - WARNING - Whitespace issue at line 631: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 687: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 706: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 739: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 765: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 777: Line ends with a space.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 781: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 901: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 902: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 954: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 959: Line ends with a space.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 966: Line ends with a space.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 984: Line ends with a space.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 995: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 1024: Excessive whitespace within line.
+2024-03-14 13:41:08,722 - WARNING - Whitespace issue at line 1060: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1066: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1074: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1084: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1132: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1140: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1165: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1219: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1231: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1233: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1234: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1235: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1281: Line ends with a space.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1309: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1350: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1376: Excessive whitespace within line.
+2024-03-14 13:41:08,723 - WARNING - Whitespace issue at line 1427: Excessive whitespace within line.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1445: Excessive whitespace within line.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1456: Excessive whitespace within line.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1477: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1479: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1482: Excessive whitespace within line.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1483: Excessive whitespace within line.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1483: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1484: Excessive whitespace within line.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1504: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1530: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1569: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1570: Line ends with a space.
+2024-03-14 13:41:08,724 - WARNING - Whitespace issue at line 1571: Excessive whitespace within line.
+2024-03-14 13:41:08,725 - INFO - Script Analysis completed.

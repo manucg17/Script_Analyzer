@@ -1,0 +1,6 @@
+2024-03-14 12:19:43,460 - ERROR - Error during naming conventions check: slice indices must be integers or None or have an __index__ method
+2024-03-14 12:19:43,462 - ERROR - Error during modularization check: slice indices must be integers or None or have an __index__ method
+2024-03-14 12:19:43,473 - WARNING - Consistency issue: Incorrect syntax at the end of the file. Expected '}', found ''.
+2024-03-14 12:19:43,478 - WARNING - Whitespace issue at line 14: Line ends with a space.
+2024-03-14 12:19:43,478 - WARNING - Whitespace issue at line 37: Excessive whitespace within line.
+2024-03-14 12:19:43,480 - INFO - Script Analysis completed.
