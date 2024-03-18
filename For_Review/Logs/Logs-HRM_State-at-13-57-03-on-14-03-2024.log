@@ -1,6 +1,0 @@
-2024-03-14 13:57:03,462 - ERROR - Error during naming conventions check: Unable to invoke 'cpp'.  Make sure its path was passed correctly
-Original error: [WinError 2] The system cannot find the file specified
-2024-03-14 13:57:03,468 - WARNING - Consistency issue: Incorrect syntax at the end of the file. Expected '}', found ''.
-2024-03-14 13:57:03,472 - WARNING - Whitespace issue at line 14: Line ends with a space.
-2024-03-14 13:57:03,472 - WARNING - Whitespace issue at line 37: Excessive whitespace within line.
-2024-03-14 13:57:03,473 - INFO - Script Analysis completed.

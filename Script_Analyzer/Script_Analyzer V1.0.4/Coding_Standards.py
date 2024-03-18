@@ -19,9 +19,8 @@ RECIPIENT_EMAIL = 'manu.m@thinkpalm.com'
 SMTP_SERVER = 'smtp-mail.outlook.com'
 SMTP_PORT = 587
 
-# Set global indentation, line count and iteration values
+# Set global indentation and iteration values
 INDENTATION_SPACES = 4
-EXPECTED_LINE_COUNT = 2000
 ITERATION_VALUES = {
     'MAX_FUNCTION_COUNT': 3,  # Maximum number of functions expected in the script
     'MAX_SUBROUTINE_COUNT': 3  # Maximum number of subroutines expected in the script
@@ -43,9 +42,6 @@ class ScriptAnalyzer:
 
     def run_analysis(self):
         try:
-            # Check script indentation
-            self.check_total_lines()
-
             # Check script indentation
             self.check_indentation()
 
@@ -87,18 +83,6 @@ class ScriptAnalyzer:
 
         except Exception as e:
             logging.error(f"Error during analysis: {str(e)}")
-
-    def check_total_lines(self):
-        try:
-            with open(self.script_path, "r") as script_file:
-                lines = script_file.readlines()
-                total_lines = len(lines)
-                if total_lines > EXPECTED_LINE_COUNT:
-                    logging.warning(f"Total number of lines ({total_lines}) exceeds the recommended maximum of 2000 lines.")
-        except FileNotFoundError:
-            logging.error(f"File not found: {self.script_path}")
-        except Exception as e:
-            logging.error(f"Error during total lines check: {str(e)}")
 
     def check_indentation(self):
         try:
@@ -208,38 +192,24 @@ class ScriptAnalyzer:
 
         return processed_file_path
 
+
     def check_modularization(self):
         try:
             with open(self.script_path, "r") as script_file:
                 lines = script_file.readlines()
 
-            repeated_sequences = {}
-            sequence_length = 3  # Minimum number of lines in a sequence to consider it for refactoring
+            num_functions = 0
+            for line in lines:
+                if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\s*\)\s*\{', line) and "main" not in line:
+                    num_functions += 1
 
-            # Create sequences of lines
-            for start_index in range(len(lines) - sequence_length + 1):
-                sequence = tuple(lines[start_index:start_index + sequence_length])
-                if all(len(line.strip()) > 1 for line in sequence):  # Check if all lines have more than one character
-                    if sequence in repeated_sequences:
-                        repeated_sequences[sequence].append(start_index + 1)  # Line numbers start from 1
-                    else:
-                        repeated_sequences[sequence] = [start_index + 1]
-
-            # Determine the threshold for suggesting refactoring as a function
-            repetition_threshold = 2
-
-            for sequence, line_numbers in repeated_sequences.items():
-                if len(line_numbers) >= repetition_threshold:
-                    # Remove leading and trailing whitespace from the sequence for better readability in the log
-                    formatted_sequence = ''.join(sequence).strip()
-                    warning_message = f"Repetition detected: Sequence '{formatted_sequence}' repeated {len(line_numbers)} times. Consider refactoring as a function. Lines: {', '.join(map(str, line_numbers))}"
-                    logging.warning(warning_message)
+            if num_functions < ITERATION_VALUES['MAX_FUNCTION_COUNT']:
+                logging.warning(f"Modularization issue: The file {self.script_path} should have at least {ITERATION_VALUES['MAX_FUNCTION_COUNT']} functions.")
 
         except FileNotFoundError:
             logging.error(f"File not found: {self.script_path}")
         except Exception as e:
             logging.error(f"Error during modularization check: {str(e)}")
-
 
     def check_file_encoding(self):
         try:
