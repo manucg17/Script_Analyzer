@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Script Analyzer</title>
+    <!-- Styling for the page -->
+    <style>
+        body {
+            background-color: #2c3e50; /* Dark blue background */
+            color: #ecf0f1; /* Light text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #3498db; /* Blue heading color */
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #34495e; /* Darker blue form background */
+            border-radius: 5px;
+        }
+
+        label {
+            color: #ecf0f1; /* Light label text color */
+        }
+
+        input[type="email"],
+        input[type="file"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 3px;
+        }
+
+        input[type="submit"] {
+            background-color: #3498db; /* Blue submit button */
+            color: #ecf0f1; /* Light text color */
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2980b9; /* Darker blue on hover */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            color: #f39c12; /* Orange message text color */
+            margin-bottom: 5px;
+        }
+
+        /* Styling for the progress bar */
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 20px;
+            background-color: #3498db; /* Blue progress color */
+            transition: width 0.5s; /* Smooth transition for width change */
+        }
+
+        /* Styling for the popup */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+            display: none;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page heading -->
+    <h1>Script Analyzer</h1>
+    <!-- Form for uploading a C++ file -->
+    <form method="post" action="/upload" enctype="multipart/form-data">
+        <!-- Input for recipient email address -->
+        <label for="recipient_email">Recipient Email Address:</label><br>
+        <input type="email" id="recipient_email" name="recipient_email"><br><br>
+        <!-- Input for selecting a C++ file -->
+        <label for="file">Select a C++ file:</label><br>
+        <input type="file" id="file" name="file" accept=".cpp"><br><br>
+        <!-- Submit button to upload the file -->
+        <input type="submit" value="Submit">
+        <!-- Progress bar for file upload progress -->
+        <div class="progress-bar">
+            <div class="progress" id="progress" style="width: 0%"></div>
+        </div>
+    </form>
+    <!-- Popup for success or error message -->
+    <div id="popup" class="popup"></div>
+
+    <!-- JavaScript for updating the progress bar and showing the popup -->
+    <script>
+        // Update progress bar during file upload
+        document.querySelector('form').addEventListener('submit', function() {
+            var progress = document.getElementById('progress');
+            var intervalId = setInterval(function() {
+                if (progress.style.width === '100%') {
+                    clearInterval(intervalId); // Stop the interval when progress is complete
+                } else {
+                    progress.style.width = parseInt(progress.style.width, 10) + 20 + '%'; // Increment progress by 20% every second
+                }
+            }, 1000); // Interval of 1 second
+
+            // Function to show a popup message with auto-close functionality
+            function showPopup(message, isError) {
+                var popup = document.getElementById('popup');
+                popup.innerText = message;
+                if (isError) {
+                    popup.classList.add('error');
+                } else {
+                    popup.classList.add('success');
+                }
+                popup.style.display = 'block';
+                setTimeout(function() {
+                    popup.style.display = 'none';
+                }, 5000); // Close the popup after 5 seconds
+            }
+
+            // Check if the uploaded file has a .cpp extension
+            var fileInput = document.getElementById('file');
+            var fileName = fileInput.value;
+            if (!fileName.endsWith('.cpp')) {
+                // Show error popup
+                showPopup("Check File uploaded, This Script Analyzer only supports C++ scripts", true);
+                // Clear the file input
+                fileInput.value = '';
+            } else {
+                // Show success popup
+                showPopup("File Uploaded Successfully", false);
+            }
+        });
+    </script>
+</body>
+</html>
