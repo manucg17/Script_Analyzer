@@ -74,7 +74,7 @@
         .progress {
             width: 0%;
             height: 20px;
-            background-color: #3498db; /* Blue progress color */
+            background-color: #f7dc6f; /* Blue progress color */
             transition: width 0.5s; /* Smooth transition for width change */
         }
 
@@ -126,15 +126,26 @@
     <!-- JavaScript for updating the progress bar and showing the popup -->
     <script>
         // Update progress bar during file upload
-        document.querySelector('form').addEventListener('submit', function() {
+        document.querySelector('form').addEventListener('submit', function(event) {
             var progress = document.getElementById('progress');
-            var intervalId = setInterval(function() {
-                if (progress.style.width === '100%') {
-                    clearInterval(intervalId); // Stop the interval when progress is complete
-                } else {
-                    progress.style.width = parseInt(progress.style.width, 10) + 20 + '%'; // Increment progress by 20% every second
+            var xhr = new XMLHttpRequest();
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    var percentComplete = (e.loaded / e.total) * 100;
+                    progress.style.width = percentComplete + '%';
                 }
-            }, 1000); // Interval of 1 second
+            });
+            xhr.upload.addEventListener('load', function(e) {
+                // File upload completed, show success popup
+                showPopup("File Uploaded Successfully", false);
+                // Simulate sending email (1.5s delay)
+                setTimeout(function() {
+                    showPopup("Email Sent Successfully", false);
+                }, 2500); // Show the "Email Sent Successfully" popup after 2.5 seconds
+            });
+            xhr.open('POST', '/upload', true);
+            xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+            xhr.send(new FormData(event.target));
 
             // Function to show a popup message with auto-close functionality
             function showPopup(message, isError) {
@@ -148,7 +159,7 @@
                 popup.style.display = 'block';
                 setTimeout(function() {
                     popup.style.display = 'none';
-                }, 5000); // Close the popup after 5 seconds
+                }, 1500); // Close the popup after 2 seconds
             }
 
             // Check if the uploaded file has a .cpp extension
@@ -159,9 +170,7 @@
                 showPopup("Check File uploaded, This Script Analyzer only supports C++ scripts", true);
                 // Clear the file input
                 fileInput.value = '';
-            } else {
-                // Show success popup
-                showPopup("File Uploaded Successfully", false);
+                event.preventDefault(); // Prevent form submission
             }
         });
     </script>

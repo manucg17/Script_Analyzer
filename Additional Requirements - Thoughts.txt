@@ -2783,3 +2783,63 @@ One thing i notice is that, when we log into GUI, we see the POP up msg even bef
 can we add an enhancement. Once script is uploaded a pop up saying Upload completed and needs to be closed in three seconds
 Again once analysis is in progress, We can have a progress bar for the same and once that is done, we can have a Pop up saying Analysis complete and Email with Logs sent to <Recipients Email>
 
+-- Added Script Analyzer as a Project Folder:
+  -- Contents:
+    -- app.py            ## Flask Web Application - web application functional and interactive for users
+    -- Script_Analyzer.py ## Python Code to Handle all the Checks that is required in Script Analysis
+    -- index.html         ## Handles html creation
+	
+	
+                    if "{" in line and "(" in line and not inside_function:
+                        if line.strip().endswith("{"):
+                            inside_function = True
+                            indentation_level += 1
+                            continue
+
+                    if inside_function:
+                        control_structures = ["if", "else if", "else", "switch", "for", "while", "do"]
+                        # control_structures = ["for", "while", "do", "if", "else", "elif", "elseif", "unless"]
+                        for control_structure in control_structures:
+                            if control_structure in line.strip():
+                                if not line.startswith(" " * INDENTATION_SPACES * (indentation_level - 1)):
+                                    logging.warning(f"Indentation issue at line {line_number}: Incorrect indentation for {control_structure} statement.")
+                                    self.counts['indentation_check'] += 1
+                                if line.strip().endswith("{"):
+                                    indentation_level += 1
+                            if "}" in line:
+                                indentation_level -= 1
+                                if indentation_level == 0:
+                                    inside_function = False
+                                    continue
+
+                    if not line.startswith(" " * INDENTATION_SPACES * indentation_level):
+                        logging.warning(f"Indentation issue at line {line_number}: Incorrect indentation.")
+                        self.counts['indentation_check'] += 1
+
+Can we implement this for "if", "else if", "else", "switch", "for", "while", "do" when used in c to handle the indentation
+
+Please note in case of lines of code after bing stripped and starts with control_structures: if, while, switch followed by "(condition) {"
+Modify the loop to suit these conditions
+if (condition) {
+    // code block
+}
+while (condition) {
+    // code block
+}
+switch (expression) {
+    case constant1:
+        // code block
+        break;
+    case constant2:
+        // code block
+        break;
+    default:
+        // default code block
+}
+if (condition1) {
+    // code block
+
+    if (condition2) {
+        // nested code block
+    }
+}

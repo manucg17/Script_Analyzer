@@ -1,11 +1,12 @@
 import os
+import shutil
 from flask import Flask, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 from Script_Analyzer import ScriptAnalyzer, send_email
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploads')
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Uploads')
 ALLOWED_EXTENSIONS = {'cpp'}
 
 # Set global configuration values
@@ -15,6 +16,16 @@ SMTP_SERVER = 'smtp-mail.outlook.com'
 SMTP_PORT = 587
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Delete files and folders in the Uploads folder
+for root, dirs, files in os.walk(UPLOAD_FOLDER):
+    for file_name in files:
+        file_path = os.path.join(root, file_name)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}: {e}")
 
 @app.route('/')
 def index():
@@ -43,6 +54,9 @@ def upload_file():
         analyzer = ScriptAnalyzer(file_path, recipient_email, sender_email, sender_password)
         analyzer.run_analysis()
         flash('File successfully uploaded and analyzed')
+
+        flash('Email sent successfully')
+
         return redirect(url_for('index'))
     else:
         flash('Allowed file types are .cpp')
