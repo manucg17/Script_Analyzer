@@ -3,6 +3,7 @@ import os
 import logging
 import subprocess
 import smtplib
+import platform
 from pathlib import Path
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -16,8 +17,6 @@ SMTP_SERVER = 'smtp-mail.outlook.com'
 SMTP_PORT = 587
 
 # Set global indentation, line count, and iteration values
-SEQUENCE_LENGTH = 3  # Minimum number of lines in a sequence to consider it for refactoring
-REPETITION_THRESHOLD = 3 # Determine the threshold for suggesting refactoring as a function
 INDENTATION_SPACES = 4
 EXPECTED_LINE_COUNT = 2000
 ITERATION_VALUES = {
@@ -33,11 +32,16 @@ class ScriptAnalyzer:
         self.sender_password = sender_password
         self.log_file = self.get_log_file_name()
         self.counts = {
+            'include_directive_check': 0,
+            'analysis': 0,
             'total_lines_check': 0,
             'indentation_check': 0,
             'naming_conventions_check': 0,
+            'preprocessing': 0,
             'modularization_check': 0,
             'consistency_check': 0,
+            'code_reuse_check': 0,
+            'repetition_check': 0,
             'excess_whitespace_check': 0
         }
         logging.basicConfig(filename=self.log_file, level=logging.INFO,
@@ -78,6 +82,8 @@ class ScriptAnalyzer:
         try:
             # Check for mandatory #include directive
             self.check_include_directive()
+        except Exception as e:
+            logging.error(f"Error during include directive check: {str(e)}")
 
             try:
                 # Check script indentation
@@ -91,11 +97,15 @@ class ScriptAnalyzer:
             except Exception as e:
                 logging.error(f"Error during indentation check: {str(e)}")
 
-            try:
-                # Check naming conventions
-                self.check_naming_conventions()
-            except Exception as e:
-                logging.error(f"Error during naming conventions check: {str(e)}")
+        try:
+            # Check naming conventions
+            # Create an instance of NamingConventionVisitor
+            visitor = NamingConventionVisitor()
+            # Use the visitor to check naming conventions
+            for decl in declarations.iter_declarations(decls):
+                visitor.visit(decl)
+        except Exception as e:
+            logging.error(f"Error during naming conventions check: {str(e)}")
 
             try:
                 # Check modularization
@@ -113,8 +123,20 @@ class ScriptAnalyzer:
                 logging.error(f"Error during consistency check: {str(e)}")
 
             try:
+                # Check code reuse
+                self.check_code_reuse()
+            except Exception as e:
+                logging.error(f"Error during code reuse check: {str(e)}")
+
+            try:
                 # Check whitespace usage
                 self.check_excess_whitespace()
+            except Exception as e:
+                logging.error(f"Error during whitespace check: {str(e)}")
+                
+            try:
+                # Check Repeated lines
+                self.check_repetition()
             except Exception as e:
                 logging.error(f"Error during whitespace check: {str(e)}")
 
@@ -166,17 +188,17 @@ class ScriptAnalyzer:
                         self.counts['indentation_check'] += 1
 
                     if line.strip().startswith("#include"):
-                        if not re.match(r'^#include\s+\S+', line.strip()):
+                        if not re.match(r'^#include\s*$', line.strip()):
                             logging.warning(f"Syntax issue at line {line_number}: Incorrect syntax - Include.")
                         continue
                     
                     if line.strip().startswith("Using"):
-                        if not re.match(r'^Using\s+\S+', line.strip()):
+                        if not re.match(r'^Using\s*$', line.strip()):
                             logging.warning(f"Syntax issue at line {line_number}: Incorrect syntax - Using.")
                         continue
 
                     if line.strip().startswith("typedef"):
-                        if not re.match(r'^typedef\s+\S+', line.strip()):
+                        if not re.match(r'^typedef\s*$', line.strip()):
                             logging.warning(f"Syntax issue at line {line_number}: Incorrect syntax - Typedef.")
                         continue
 
@@ -215,91 +237,83 @@ class ScriptAnalyzer:
         except Exception as e:
             logging.error(f"Error during indentation check: {str(e)}")
 
-    def check_naming_conventions(self):
-        try:
-            processed_script = self.preprocess_cpp_file()
-            ast = parse_file(processed_script)
+    class NamingConventionVisitor(c_ast.NodeVisitor):
+        def __init__(self):
+            self.module_prefix = None
+            self.is_global_scope = True
+            self.is_class_scope = False
 
-            class NamingConventionVisitor(c_ast.NodeVisitor):
-                def __init__(self):
-                    self.module_prefix = None
+        def visit_FileAST(self, node):
+            if node.ext:
+                for ext in node.ext:
+                    if isinstance(ext, c_ast.Decl):
+                        if ext.name and ext.name.startswith('MODULE_'):
+                            self.module_prefix = ext.name
+                self.generic_visit(node)
 
-                def visit_FileAST(self, node):
-                    if node.ext:
-                        for ext in node.ext:
-                            if isinstance(ext, c_ast.Decl):
-                                if ext.name and ext.name.startswith('MODULE_'):
-                                    self.module_prefix = ext.name
-                        self.generic_visit(node)
+        def visit_FuncDef(self, node):
+            if self.is_global_scope and not node.decl.name[0].islower():
+                logging.warning(f"Function {node.decl.name} does not start with a lowercase letter")
+                self.counts['naming_conventions_check'] += 1
+            self.visit(node.body)
 
-                def visit_FuncDef(self, node):
-                    if not node.decl.name[0].islower():
-                        logging.warning(f"Function {node.decl.name} does not start with a lowercase letter")
-                        self.counts['naming_conventions_check'] += 1
-                    self.visit(node.body)
+        def visit_Decl(self, node):
+            if isinstance(node.type, c_ast.TypeDecl):
+                if node.name.islower() and self.is_global_scope and not self.is_class_scope:
+                    logging.warning(f"Global variable {node.name} does not start with 'g_'")
+                    self.counts['naming_conventions_check'] += 1
+                elif node.name.startswith('m_') and not self.is_class_scope:
+                    logging.warning(f"Member {node.name} should not start with 'm_'")
+                    self.counts['naming_conventions_check'] += 1
+                elif node.name.upper() == node.name and self.is_global_scope:
+                    logging.warning(f"Constant {node.name} should not be all uppercase")
+                    self.counts['naming_conventions_check'] += 1
+                elif self.module_prefix and not node.name.startswith(self.module_prefix):
+                    logging.warning(f"Symbol {node.name} should have a prefix '{self.module_prefix}'")
+                    self.counts['naming_conventions_check'] += 1
+            elif isinstance(node.type, c_ast.PtrDecl):
+                if not node.name.startswith('p_'):
+                    logging.warning(f"Pointer variable {node.name} should start with 'p_'")
+                    self.counts['naming_conventions_check'] += 1
+            elif isinstance(node.type, c_ast.Struct):
+                if not node.name[0].isupper() and self.is_global_scope:
+                    logging.warning(f"Type/Class {node.name} does not start with an uppercase letter")
+                    self.counts['naming_conventions_check'] += 1
+                self.is_class_scope = True
+                self.generic_visit(node)
+                self.is_class_scope = False
+            else:
+                self.generic_visit(node)
 
-                def visit_Decl(self, node):
-                    if isinstance(node.type, c_ast.TypeDecl):
-                        if node.name.islower():
-                            logging.warning(f"Variable {node.name} does not start with an uppercase letter")
-                            self.counts['naming_conventions_check'] += 1
-                        elif node.name.upper() == node.name:
-                            logging.warning(f"Constant {node.name} should not be all uppercase")
-                            self.counts['naming_conventions_check'] += 1
-                        elif self.module_prefix and not node.name.startswith(self.module_prefix):
-                            logging.warning(f"Symbol {node.name} should have a prefix '{self.module_prefix}'")
-                            self.counts['naming_conventions_check'] += 1
-                    elif isinstance(node.type, c_ast.PtrDecl):
-                        if not node.name.startswith('p_'):
-                            logging.warning(f"Pointer variable {node.name} should start with 'p_'")
-                            self.counts['naming_conventions_check'] += 1
-                    elif isinstance(node.type, c_ast.Struct):
-                        if not node.name[0].isupper():
-                            logging.warning(f"Type/Class {node.name} does not start with an uppercase letter")
-                            self.counts['naming_conventions_check'] += 1
-                    self.generic_visit(node)
+        def visit_Compound(self, node):
+            # Entering a function scope
+            self.is_global_scope = False
+            self.generic_visit(node)
+            # Exiting a function scope
+            self.is_global_scope = True
 
-            v = NamingConventionVisitor()
-            v.visit(ast)
-
-            logging.info(f"Naming conventions check completed - Count: {self.counts['naming_conventions_check']}")
-
-        except FileNotFoundError:
-            logging.error(f"File not found: {self.script_path}")
-        except Exception as e:
-            logging.error(f"Error during naming conventions check: {str(e)}")
-
-    def preprocess_cpp_file(self):
-        processed_file_path = self.script_path.parent / f"{self.script_path.stem}_processed.cpp"
-        try:
-            command = ['cpp', '-o', str(processed_file_path), str(self.script_path)]
-            result = subprocess.run(command, check=True, capture_output=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Error during preprocessing: {e}")
-            if e.stderr:
-                logging.error(f"cpp error: {e.stderr}")
-        except Exception as e:
-            logging.error(f"Error during preprocessing: {str(e)}")
-
-        return processed_file_path
-    
     def check_modularization(self):
         try:
             with open(self.script_path, "r") as script_file:
                 lines = script_file.readlines()
 
             repeated_sequences = {}
+            sequence_length = 3  # Minimum number of lines in a sequence to consider it for refactoring
+
             # Create sequences of lines
-            for start_index in range(len(lines) - SEQUENCE_LENGTH + 1):
-                sequence = tuple(lines[start_index:start_index + SEQUENCE_LENGTH])
+            for start_index in range(len(lines) - sequence_length + 1):
+                sequence = tuple(lines[start_index:start_index + sequence_length])
                 if all(len(line.strip()) > 1 for line in sequence):  # Check if all lines have more than one character
                     if sequence in repeated_sequences:
                         repeated_sequences[sequence].append(start_index + 1)  # Line numbers start from 1
                     else:
                         repeated_sequences[sequence] = [start_index + 1]
 
+            # Determine the threshold for suggesting refactoring as a function
+            repetition_threshold = 4
+
             for sequence, line_numbers in repeated_sequences.items():
-                if len(line_numbers) >= REPETITION_THRESHOLD and len(sequence) > 1:
+                if len(line_numbers) >= repetition_threshold:
                     # Remove leading and trailing whitespace from the sequence for better readability in the log
                     formatted_sequence = ''.join(sequence).strip()
                     warning_message = f"Repetition detected: Sequence '{formatted_sequence}' repeated {len(line_numbers)} times. Consider refactoring as a function. Lines: {', '.join(map(str, line_numbers))}"
@@ -367,7 +381,7 @@ class ScriptAnalyzer:
                     line_endings.add('LF')
 
             if len(line_endings) > 1:
-                logging.warning('Inconsistent line endings found in the script. Use either CRLF(line break "\r\n") or LF(line break "\n"), not both.')
+                logging.warning("Inconsistent line endings found in the script. Use either CRLF or LF, not both.")
                 self.counts['consistency_check'] += 1
 
             logging.info(f"Consistency check completed - Count: {self.counts['consistency_check']}")
@@ -376,6 +390,39 @@ class ScriptAnalyzer:
             logging.error(f"File not found: {self.script_path}")
         except Exception as e:
             logging.error(f"Error during consistency check: {str(e)}")
+
+    def check_code_reuse(self):
+        try:
+            with open(self.script_path, "r") as script_file:
+                lines = script_file.readlines()
+
+            function_definitions = []
+            for line_number, line in enumerate(lines, start=1):
+                if line.startswith("int ") or line.startswith("void "):
+                    function_name = re.search(r'\b[a-zA-Z_][a-zA-Z0-9_]*\s*\(', line)
+                    if function_name:
+                        function_definitions.append((function_name.group().strip(), line_number))
+
+            function_calls = {}
+            for line_number, line in enumerate(lines, start=1):
+                for function_name, _ in function_definitions:
+                    if function_name in line:
+                        if function_name in function_calls:
+                            function_calls[function_name].append(line_number)
+                        else:
+                            function_calls[function_name] = [line_number]
+
+            for function_name, call_line_numbers in function_calls.items():
+                if len(call_line_numbers) > 1:
+                    logging.warning(f"Function '{function_name}' called multiple times. Consider refactoring for code reuse. Call locations: {', '.join(map(str, call_line_numbers))}")
+                    self.counts['code_reuse_check'] += 1
+
+            logging.info(f"Code reuse check completed - Count: {self.counts['code_reuse_check']}")
+
+        except FileNotFoundError:
+            logging.error(f"File not found: {self.script_path}")
+        except Exception as e:
+            logging.error(f"Error during code reuse check: {str(e)}")
 
     def check_excess_whitespace(self):
         try:
@@ -395,59 +442,29 @@ class ScriptAnalyzer:
         except Exception as e:
             logging.error(f"Error during excess whitespace check: {str(e)}")
 
-def send_email(sender_email, sender_password, recipient_email, attachment_path, counts):
-    # Create a multipart message
-    message = MIMEMultipart()   
-    message['From'] = sender_email
-    message['To'] = recipient_email
+    def check_repetition(self):
+        try:
+            with open(self.script_path, "r") as script_file:
+                lines = [line.strip() for line in script_file.readlines()]
 
-    # Get the current date and format it as desired
-    current_date = datetime.now().strftime('%d-%m-%Y')
-    subject = f"Script Analysis Log - {current_date}"
-    message['Subject'] = subject
+            repeated_blocks = {}
+            for i in range(len(lines) - 2):
+                block_lines = lines[i:i+3]
+                # Skip blocks that contain lines we want to omit
+                if any(line.startswith(("//", "#if", "#else", "#endif", "return")) or len(line) == 1 for line in block_lines):
+                    continue
+                block = '\n'.join(block_lines)
+                if block in repeated_blocks:
+                    repeated_blocks[block].append(i + 1)
+                else:
+                    repeated_blocks[block] = [i + 1]
 
-    # Add body to email
-    body = "Please find attached the log file for the script analysis.\n\n"
-    body += "Summary:\n\n"
+            for block_content, block_starts in repeated_blocks.items():
+                if len(block_starts) > 1:
+                    logging.warning(f"Repetition detected: Block starting with '{block_content.splitlines()[0]}' repeated {len(block_starts)} times. Consider refactoring by combining these lines into a function.")
+                    self.counts['repetition_check'] += 1
 
-    # Create a table for counts
-    table = "<table style='border-collapse: collapse;'>"
-    for check, count in counts.items():
-        table += f"<tr><td style='border: 1px solid black; background-color: lightgrey;'>{check}</td><td style='border: 1px solid black; background-color: lightgrey;'>{count}</td></tr>"
-    table += "</table>"
+            logging.info(f"Repetition check completed - Count: {self.counts['repetition_check']}")
 
-    body += table
-    message.attach(MIMEText(body, 'html'))
-
-    # Open the file to be sent
-    filename = os.path.basename(attachment_path)
-    attachment = open(attachment_path, "rb")
-
-    # Add file as application/octet-stream
-    part = MIMEBase("application", "octet-stream")
-    part.set_payload(attachment.read())
-    encoders.encode_base64(part)
-
-    # Add header as key/value pair to attachment part
-    part.add_header(
-        "Content-Disposition",
-        f"attachment; filename= {filename}",
-    )
-
-    # Add attachment to message and convert message to string
-    message.attach(part)
-    text = message.as_string()
-
-    # Log into server and send email
-    server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    server.starttls()
-    server.login(sender_email, sender_password)
-    server.sendmail(sender_email, recipient_email, text)
-    server.quit()
-
-    # Log the counts sent in the email body
-    logging.info(f"Counts sent in email body: {counts}")
-
-if __name__ == "__main__":
-    analyzer = ScriptAnalyzer(script_path, recipient_email, sender_email, sender_password)
-    analyzer.run_analysis()
+        except FileNotFoundError:
+            logging.error(f"File {self.script_path} not found.")
