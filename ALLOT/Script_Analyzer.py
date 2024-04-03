@@ -19,7 +19,7 @@ SMTP_PORT = 587
 SEQUENCE_LENGTH = 3  # Minimum number of lines in a sequence to consider it for refactoring
 REPETITION_THRESHOLD = 3 # Determine the threshold for suggesting refactoring as a function
 INDENTATION_SPACES = 4
-EXPECTED_LINE_COUNT = 2000
+EXPECTED_LINE_COUNT = 1500
 ITERATION_VALUES = {
     'MAX_FUNCTION_COUNT': 3,  # Maximum number of functions expected in the script
     'MAX_SUBROUTINE_COUNT': 3  # Maximum number of subroutines expected in the script
@@ -67,8 +67,7 @@ class ScriptAnalyzer:
 
                 if not first_non_comment_line or not lines[first_non_comment_line - 1].strip().startswith("#include "):
                     logging.error("Mandatory '#include ' directive missing at the beginning of the file.")
-                else:
-                    logging.error("No issue observed check------------ .")
+                    self.counts['include_directive_check'] = 1  # Increment the count
         except FileNotFoundError:
             logging.error(f"File not found: {self.script_path}")
         except Exception as e:
@@ -122,6 +121,9 @@ class ScriptAnalyzer:
             print("Script Analysis completed.")
             # Creating Log with Analysis in Log Directory
             logging.info("Script Analysis completed.")
+            
+            # Add summary table to log
+            self.add_summary_to_log()
 
             # Email the log file
             sender_email = self.sender_email
@@ -134,6 +136,18 @@ class ScriptAnalyzer:
             logging.error(f"Error during analysis: {str(e)}")
             self.error_count += 1
             logging.error(f"Error count: {self.error_count}")  # Log the error count
+    
+    def add_summary_to_log(self):
+        summary = "\n\n  Summary of Issues observed:\n"
+        summary += "-------------------------------\n"
+        summary += "\tCheck\t\t\t\tCount\n"
+        summary += "-------------------------------\n"
+        for check, count in self.counts.items():
+            if count >= 1:
+                summary += f" {check.ljust(25)}{count}\n"
+        summary += "-------------------------------"
+        with open(self.log_file, 'a') as log_file:
+            log_file.write(summary)
 
     def check_total_lines(self):
         try:
@@ -163,6 +177,10 @@ class ScriptAnalyzer:
 
                     if "\t" in line:
                         logging.warning(f"Indentation issue at line {line_number}: TAB space used. Convert TABs to spaces.")
+                        self.counts['indentation_check'] += 1
+
+                    if "{" in line and not line.strip().endswith("{"):
+                        logging.warning(f"Brace placement issue at line {line_number}: Opening brace should be on the same line as the control statement.")
                         self.counts['indentation_check'] += 1
 
                     if line.strip().startswith("#include"):
@@ -217,50 +235,44 @@ class ScriptAnalyzer:
 
     def check_naming_conventions(self):
         try:
-            processed_script = self.preprocess_cpp_file()
-            ast = parse_file(processed_script)
+            with open(self.script_path, "r") as script_file:
+                for line_number, line in enumerate(script_file, start=1):
+                    line = line.strip()
 
-            class NamingConventionVisitor(c_ast.NodeVisitor):
-                def __init__(self):
-                    self.module_prefix = None
-
-                def visit_FileAST(self, node):
-                    if node.ext:
-                        for ext in node.ext:
-                            if isinstance(ext, c_ast.Decl):
-                                if ext.name and ext.name.startswith('MODULE_'):
-                                    self.module_prefix = ext.name
-                        self.generic_visit(node)
-
-                def visit_FuncDef(self, node):
-                    if not node.decl.name[0].islower():
-                        logging.warning(f"Function {node.decl.name} does not start with a lowercase letter")
+                    # Check for symbols prefix
+                    if line.startswith("MODULE_"):
+                        logging.warning(f"Symbol with prefix 'MODULE_' found at line {line_number}")
                         self.counts['naming_conventions_check'] += 1
-                    self.visit(node.body)
 
-                def visit_Decl(self, node):
-                    if isinstance(node.type, c_ast.TypeDecl):
-                        if node.name.islower():
-                            logging.warning(f"Variable {node.name} does not start with an uppercase letter")
-                            self.counts['naming_conventions_check'] += 1
-                        elif node.name.upper() == node.name:
-                            logging.warning(f"Constant {node.name} should not be all uppercase")
-                            self.counts['naming_conventions_check'] += 1
-                        elif self.module_prefix and not node.name.startswith(self.module_prefix):
-                            logging.warning(f"Symbol {node.name} should have a prefix '{self.module_prefix}'")
-                            self.counts['naming_conventions_check'] += 1
-                    elif isinstance(node.type, c_ast.PtrDecl):
-                        if not node.name.startswith('p_'):
-                            logging.warning(f"Pointer variable {node.name} should start with 'p_'")
-                            self.counts['naming_conventions_check'] += 1
-                    elif isinstance(node.type, c_ast.Struct):
-                        if not node.name[0].isupper():
-                            logging.warning(f"Type/Class {node.name} does not start with an uppercase letter")
-                            self.counts['naming_conventions_check'] += 1
-                    self.generic_visit(node)
+                    # Check for lower-case variables/functions
+                    if re.match(r'^[a-z_]\w*\(.*\)\s*{?$', line):
+                        logging.warning(f"Variable/function not starting with lower-case letter found at line {line_number}")
+                        self.counts['naming_conventions_check'] += 1
 
-            v = NamingConventionVisitor()
-            v.visit(ast)
+                    # Check for upper-case types/classes
+                    if re.match(r'^[A-Z]\w*\s+\w+(?:::\w+)?\s*{?$', line):
+                        logging.warning(f"Type/class not starting with upper-case letter found at line {line_number}")
+                        self.counts['naming_conventions_check'] += 1
+
+                    # Check for upper-case constants
+                    if re.match(r'^#define\s+[A-Z_]\w*\s+', line):
+                        logging.warning(f"Constant not all upper-case found at line {line_number}")
+                        self.counts['naming_conventions_check'] += 1
+
+                    # Check for global variables starting with 'g_'
+                    if re.match(r'\b(g_[a-zA-Z_]\w*)\b', line):
+                        logging.warning(f"Global variable not starting with 'g_' found at line {line_number}")
+                        self.counts['naming_conventions_check'] += 1
+
+                    # Check for members starting with 'm_'
+                    if re.match(r'\b(m_[a-zA-Z_]\w*)\b', line):
+                        logging.warning(f"Member not starting with 'm_' found at line {line_number}")
+                        self.counts['naming_conventions_check'] += 1
+
+                    # Check for pointers starting with 'p'
+                    if re.search(r'\b\w+\s*\*\s*p[A-Za-z_]\w*', line):
+                        logging.warning(f"Pointer not starting with 'p' found at line {line_number}")
+                        self.counts['naming_conventions_check'] += 1
 
             logging.info(f"Naming conventions check completed - Count: {self.counts['naming_conventions_check']}")
 
@@ -322,11 +334,17 @@ class ScriptAnalyzer:
                         line.decode('utf-8')
                     except UnicodeDecodeError as e:
                         encoding = str(e)
-                        logging.error(f"File is not UTF-8 encoded: {e}")
+                        logging.error(f"File is not UTF-8 encoded - Please save the file in UTF-8 Format: {e}")
+                        if 'file_encoding_check' in self.counts:
+                            self.counts['file_encoding_check'] += 1
+                        else:
+                            self.counts['file_encoding_check'] = 1
                         break
                 if not encoding:
-                    logging.info("File is UTF-8 encoded")
-                    self.counts['file_encoding_check'] += 1
+                    logging.info("File is UTF-8 encoded - Expected")
+
+            if 'file_encoding_check' not in self.counts:
+                self.counts['file_encoding_check'] = 0
 
             logging.info(f"File encoding check completed - Count: {self.counts['file_encoding_check']}")
 
@@ -343,20 +361,24 @@ class ScriptAnalyzer:
             # Check for consistent use of tabs or spaces for indentation
             indentation_type = None
             for line_number, line in enumerate(lines, start=1):
-                leading_whitespace = len(line) - len(line.lstrip())
-                if leading_whitespace:
-                    if line[leading_whitespace] == '\t':
-                        if indentation_type is None:
-                            indentation_type = 'tabs'
-                        elif indentation_type != 'tabs':
-                            logging.warning(f"Inconsistent use of tabs and spaces for indentation at line {line_number}")
-                            self.counts['consistency_check'] += 1
-                    else:
-                        if indentation_type is None:
-                            indentation_type = 'spaces'
-                        elif indentation_type != 'spaces':
-                            logging.warning(f"Inconsistent use of tabs and spaces for indentation at line {line_number}")
-                            self.counts['consistency_check'] += 1
+                try:
+                    leading_whitespace = len(line) - len(line.lstrip())
+                    if leading_whitespace < len(line):
+                        if line[leading_whitespace] == '\t':
+                            if indentation_type is None:
+                                indentation_type = 'tabs'
+                            elif indentation_type != 'tabs':
+                                logging.warning(f"Inconsistent use of tabs and spaces for indentation at line {line_number}")
+                                self.counts['consistency_check'] += 1
+                        else:
+                            if indentation_type is None:
+                                indentation_type = 'spaces'
+                            elif indentation_type != 'spaces':
+                                logging.warning(f"Inconsistent use of tabs and spaces for indentation at line {line_number}")
+                                self.counts['consistency_check'] += 1
+                except IndexError as ie:
+                    logging.error(f"IndexError at line {line_number}: {line} - {str(ie)}")
+                    self.counts['consistency_check'] += 1
 
             # Check for consistent line endings (CRLF or LF)
             line_endings = set()

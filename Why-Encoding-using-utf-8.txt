@@ -1,0 +1,57 @@
+All symbols should have a prefix which identifies their module.
+Variables/functions start with lower-case.
+Types/classes start with upper-case.
+Constants are all upper-case.
+Global variables start with 'g_'.
+Members start with 'm_'
+Pointers start with 'p'.
+
+
+
+This check_file_encoding method checks if a file is UTF-8 encoded by attempting to decode each line of the file as UTF-8. Here's a breakdown of how it works:
+
+Open the file in binary mode ('rb'), which allows reading the file as bytes.
+Iterate over each line in the file (for line in f).
+Try to decode each line using the utf-8 codec (line.decode('utf-8')).
+If decoding fails (raises a UnicodeDecodeError), log an error message indicating that the file is not UTF-8 encoded.
+If decoding succeeds for all lines, the file is considered UTF-8 encoded.
+If the encoding variable is still an empty string after the loop, log a message indicating that the file is UTF-8 encoded and increment the file_encoding_check count in the counts dictionary.
+Finally, log a message indicating that the file encoding check is completed, along with the count of files that passed the UTF-8 encoding check.
+This method provides a way to check the encoding of a file and take action based on the result, such as logging an error if the file is not UTF-8 encoded.
+
+The check_file_encoding method is used to determine if a file is UTF-8 encoded. This can be useful in various scenarios where you need to ensure that the file content is correctly encoded, especially when dealing with text processing or when expecting UTF-8 encoded data.
+Here are some common use cases for checking file encoding:
+Data Integrity: Ensuring that files are UTF-8 encoded helps maintain data integrity, especially when working with text files that contain special characters or non-ASCII characters.
+Compatibility: Many applications and libraries expect UTF-8 encoding for text data. Checking the file encoding ensures compatibility with such applications and prevents encoding-related issues.
+Logging and Reporting: Logging an error message when a file is not UTF-8 encoded can help identify and address encoding issues early in the development or data processing pipeline.
+Data Processing: If your application processes text data, checking the encoding before processing can help avoid errors and ensure that the data is correctly interpreted.
+Overall, the check_file_encoding method helps ensure that files are correctly encoded, which is essential for maintaining data integrity and compatibility with various systems and applications.
+
+--------------------------
+Work around:
+
+To convert a C++ text file to UTF-8 encoding, you can use various tools and methods depending on your operating system and available utilities. Here are some common approaches:
+
+Using a Text Editor:
+Open the C++ file in a text editor that supports encoding conversion.
+Look for an option to change the encoding of the file.
+Select UTF-8 as the target encoding and save the file.
+Using Command-Line Tools:
+
+On Unix/Linux systems, you can use the iconv command-line tool. For example:
+
+php
+Copy code
+iconv -f <source_encoding> -t UTF-8 <input_file> -o <output_file>
+Replace <source_encoding> with the current encoding of the file (e.g., ISO-8859-1 for Latin-1) and <input_file> with the path to the input file.
+
+On Windows, you can use the certutil command-line tool. For example:
+
+php
+Copy code
+certutil -encode <input_file> <output_file> 65001
+This command converts the input file to UTF-8 (code page 65001) and saves it as the output file.
+
+Using Text Editors with Batch Conversion:
+Some text editors, such as Notepad++ or Visual Studio Code, offer batch conversion options to convert multiple files to UTF-8.
+Remember to make a backup of your file before performing any encoding conversion, as the process may result in data loss or corruption if not done correctly.
