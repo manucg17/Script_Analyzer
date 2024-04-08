@@ -55,6 +55,11 @@ class ScriptAnalyzer:
 
     def run_analysis(self):
         try:
+            # Print start of script analysis
+            print("Starting Script Analysis.")
+            # Creating Log with Analysis in Log Directory
+            logging.info("Starting Script Analysis.")
+
             # Check for mandatory #include directive
             self.check_include_directive()
 
@@ -269,7 +274,7 @@ class ScriptAnalyzer:
                         self.counts['naming_conventions_check'] += 1
 
                     # Check for upper-case constants
-                    if re.match(r'^#define\s+[A-Z_]\w*\s+', line):
+                    if re.match(r'^#define\s+[A-Z_]+\s+', line):
                         logging.warning(f"Constant not all upper-case found at line {line_number}")
                         self.counts['naming_conventions_check'] += 1
 
