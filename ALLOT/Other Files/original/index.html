@@ -109,7 +109,7 @@
     <form id="upload-form" method="post" action="/upload" enctype="multipart/form-data">
         <!-- Input for recipient email address -->
         <label for="recipient_email">Recipient Email Address:</label><br>
-        <input type="email" id="recipient_email" name="recipient_email" pattern="[a-zA-Z0-9._%+-]+@thinkpalm\.com$" required><br><br>
+        <input type="email" id="recipient_email" name="recipient_email" required><br><br>
 
         <!-- Input for selecting a C++ file -->
         <label for="file">Select a C++ file:</label><br>
@@ -141,7 +141,7 @@
             });
             xhr.upload.addEventListener('load', function(e) {
                 // File upload completed, show success popup
-                showPopup("File Uploaded Successfully", false);
+                showPopup("File Uploaded Analyzed and Email sent!", false);
                 // Simulate sending email (1.5s delay)
                 setTimeout(function() {
                     showPopup("Email Sent Successfully", false);

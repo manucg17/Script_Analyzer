@@ -1,8 +1,10 @@
 import re
 import os
+import shutil
 import logging
 import subprocess
 import smtplib
+import time
 from pathlib import Path
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -17,7 +19,7 @@ SMTP_PORT = 587
 
 # Set global indentation, line count, and iteration values
 SEQUENCE_LENGTH = 3  # Minimum number of lines in a sequence to consider it for refactoring
-REPETITION_THRESHOLD = 3 # Determine the threshold for suggesting refactoring as a function
+REPETITION_THRESHOLD = 3  # Determine the threshold for suggesting refactoring as a function
 INDENTATION_SPACES = 4
 EXPECTED_LINE_COUNT = 1500
 ITERATION_VALUES = {
@@ -42,7 +44,7 @@ class ScriptAnalyzer:
         }
         logging.basicConfig(filename=self.log_file, level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
-        
+
         # Initialize error count
         self.error_count = 0
 
@@ -50,28 +52,9 @@ class ScriptAnalyzer:
         current_datetime = datetime.now().strftime("%H-%M-%S-on-%d-%m-%Y")
         log_folder = self.script_path.parent / "Logs"
         log_folder.mkdir(parents=True, exist_ok=True)  # Create Logs folder if it doesn't exist
+        os.chmod(log_folder, 0o777)  # Set permission to 777
         log_file_name = f"Logs-{self.script_path.stem}-at-{current_datetime}.log"
         return log_folder / log_file_name
-
-    def check_include_directive(self):
-        try:
-            with open(self.script_path, "r") as script_file:
-                lines = script_file.readlines()
-
-                first_non_comment_line = None
-                for line_number, line in enumerate(lines, start=1):
-                    if not line.strip() or line.strip().startswith("//") or line.strip().startswith("/*"):
-                        continue
-                    first_non_comment_line = line_number
-                    break
-
-                if not first_non_comment_line or not lines[first_non_comment_line - 1].strip().startswith("#include "):
-                    logging.error("Mandatory '#include ' directive missing at the beginning of the file.")
-                    self.counts['include_directive_check'] = 1  # Increment the count
-        except FileNotFoundError:
-            logging.error(f"File not found: {self.script_path}")
-        except Exception as e:
-            logging.error(f"Error during include directive check: {str(e)}")
 
     def run_analysis(self):
         try:
@@ -121,7 +104,7 @@ class ScriptAnalyzer:
             print("Script Analysis completed.")
             # Creating Log with Analysis in Log Directory
             logging.info("Script Analysis completed.")
-            
+
             # Add summary table to log
             self.add_summary_to_log()
 
@@ -136,7 +119,7 @@ class ScriptAnalyzer:
             logging.error(f"Error during analysis: {str(e)}")
             self.error_count += 1
             logging.error(f"Error count: {self.error_count}")  # Log the error count
-    
+
     def add_summary_to_log(self):
         summary = "\n\n  Summary of Issues observed:\n"
         summary += "-------------------------------\n"
@@ -148,6 +131,26 @@ class ScriptAnalyzer:
         summary += "-------------------------------"
         with open(self.log_file, 'a') as log_file:
             log_file.write(summary)
+
+    def check_include_directive(self):
+        try:
+            with open(self.script_path, "r") as script_file:
+                lines = script_file.readlines()
+
+                first_non_comment_line = None
+                for line_number, line in enumerate(lines, start=1):
+                    if not line.strip() or line.strip().startswith("//") or line.strip().startswith("/*"):
+                        continue
+                    first_non_comment_line = line_number
+                    break
+
+                if not first_non_comment_line or not lines[first_non_comment_line - 1].strip().startswith("#include "):
+                    logging.error("Mandatory '#include ' directive missing at the beginning of the file.")
+                    self.counts['include_directive_check'] = 1  # Increment the count
+        except FileNotFoundError:
+            logging.error(f"File not found: {self.script_path}")
+        except Exception as e:
+            logging.error(f"Error during include directive check: {str(e)}")
 
     def check_total_lines(self):
         try:
@@ -285,7 +288,7 @@ class ScriptAnalyzer:
         processed_file_path = self.script_path.parent / f"{self.script_path.stem}_processed.cpp"
         try:
             command = ['cpp', '-o', str(processed_file_path), str(self.script_path)]
-            result = subprocess.run(command, check=True, capture_output=True, text=True)
+            subprocess.run(command, check=True, capture_output=True, text=True)
         except subprocess.CalledProcessError as e:
             logging.error(f"Error during preprocessing: {e}")
             if e.stderr:
@@ -419,7 +422,7 @@ class ScriptAnalyzer:
 
 def send_email(sender_email, sender_password, recipient_email, attachment_path, counts):
     # Create a multipart message
-    message = MIMEMultipart()   
+    message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = recipient_email
 
@@ -429,47 +432,66 @@ def send_email(sender_email, sender_password, recipient_email, attachment_path, 
     message['Subject'] = subject
 
     # Add body to email
-    body = "Please find attached the log file for the script analysis.\n\n"
-    body += "Summary:\n\n"
+    body = "Please find attached the log file for the script analysis.<br><br>"
+    body += "<u><b><font size='4.5' color='#000000'>Summary:</font></b></u><br><br>"
 
-    # Create a table for counts
-    table = "<table style='border-collapse: collapse;'>"
+    # Create a table for counts with added CSS for better styling
+    table = "<table style='border-collapse: collapse; border: 4px solid black; width: 50%; background-color: #D3D3D3; margin-left: auto; margin-right: auto;'>"
+    table += "<tr><th style='border: 2px solid black; padding: 15px; text-align: left; background-color: #ADD8E6; color: black;'><b>Code Quality Metric</b></th><th style='border: 2px solid black; padding: 15px; text-align: center; background-color: #ADD8E6; color: black; padding-left: 10px; padding-right: 10px;'><b>Anomaly Frequency</b></th></tr>"
+
+    # Define a dictionary to map the check names to more understandable terms
+    check_names = {
+        'total_lines_check': 'Line Count Verification',
+        'indentation_check': 'Indentation Consistency Inspection',
+        'naming_conventions_check': 'Naming Standards Assessment',
+        'modularization_check': 'Module Structure Evaluation',
+        'consistency_check': 'Code Uniformity Check',
+        'excess_whitespace_check': 'Whitespace Reduction Analysis',
+        'file_encoding_check':'File Format Consistency Verification'
+    }
+
     for check, count in counts.items():
-        table += f"<tr><td style='border: 1px solid black; background-color: lightgrey;'>{check}</td><td style='border: 1px solid black; background-color: lightgrey;'>{count}</td></tr>"
+        # Replace the check name with the corresponding term in the email body
+        check_name = check_names.get(check, check)
+        table += f"<tr><td style='border: 2px solid black; padding: 15px; text-align: left;'>{check_name}</td><td style='border: 2px solid black; padding: 15px; text-align: center;'>{count}</td></tr>"  # Reduce the cell size of the counts column, change the border color to black, increase the padding to 15px, and left-align the text in the first column
     table += "</table>"
 
+    # Adding Table to the Message body
     body += table
+
+    # Add a couple of line breaks and the desired text
+    body += "<br><br>Please Refer to the Attached Log for the detailed Analysis<br><br>Regards<br>"
+    
     message.attach(MIMEText(body, 'html'))
 
-    # Open the file to be sent
+    # Open the file to be sent  
     filename = os.path.basename(attachment_path)
     attachment = open(attachment_path, "rb")
 
-    # Add file as application/octet-stream
-    part = MIMEBase("application", "octet-stream")
-    part.set_payload(attachment.read())
-    encoders.encode_base64(part)
+    # Instance of MIMEBase and named as p
+    p = MIMEBase('application', 'octet-stream')
 
-    # Add header as key/value pair to attachment part
-    part.add_header(
-        "Content-Disposition",
-        f"attachment; filename= {filename}",
-    )
+    # To change the payload into encoded form
+    p.set_payload((attachment).read())
 
-    # Add attachment to message and convert message to string
-    message.attach(part)
+    # encode into base64
+    encoders.encode_base64(p)
+
+    p.add_header('Content-Disposition', "attachment; filename= %s" % filename)  # Use filename instead of attachment_path
+
+    # attach the instance 'p' to instance 'msg'
+    message.attach(p)
+
+    # Create SMTP session for sending the mail
+    session = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+    session.starttls()  # Enable security
+    session.login(sender_email, sender_password)  # Login
     text = message.as_string()
+    session.sendmail(sender_email, recipient_email, text)  # Send email
+    session.quit()  # Terminate the session
 
-    # Log into server and send email
-    server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    server.starttls()
-    server.login(sender_email, sender_password)
-    server.sendmail(sender_email, recipient_email, text)
-    server.quit()
-
-    # Log the counts sent in the email body
-    logging.info(f"Counts sent in email body: {counts}")
-
+# Main program
 if __name__ == "__main__":
-    analyzer = ScriptAnalyzer(script_path, recipient_email, sender_email, sender_password)
-    analyzer.run_analysis()
+    # Analyze the script
+    script_analyzer = ScriptAnalyzer(script_path, recipient_email, sender_email, sender_password)
+    script_analyzer.run_analysis()
