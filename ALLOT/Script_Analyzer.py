@@ -1,17 +1,14 @@
 import re
 import os
-import shutil
 import logging
 import subprocess
 import smtplib
-import time
 from pathlib import Path
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from pycparser import c_ast, parse_file
 
 # Set global configuration values
 SMTP_SERVER = 'smtp-mail.outlook.com'
@@ -121,14 +118,28 @@ class ScriptAnalyzer:
             logging.error(f"Error count: {self.error_count}")  # Log the error count
 
     def add_summary_to_log(self):
-        summary = "\n\n  Summary of Issues observed:\n"
-        summary += "-------------------------------\n"
-        summary += "\tCheck\t\t\t\tCount\n"
-        summary += "-------------------------------\n"
-        for check, count in self.counts.items():
-            if count >= 1:
-                summary += f" {check.ljust(25)}{count}\n"
-        summary += "-------------------------------"
+
+        summary = "\n\n---------------------------------------------\n"
+        # Initialize a variable to check if any issues were found
+        issues_found = False
+
+        value = any(val > 0 for val in self.counts.values())
+        if value:
+            summary += "\n  Summary of Issues observed:\n"
+            summary += "--------------------------------\n"
+            summary += "\tCheck\t\t\t\t Count\n"
+            summary += "--------------------------------\n"                
+            
+            for check, count in self.counts.items():
+                if count >= 1:
+                    summary += f" {check.ljust(25)}{count}\n"
+                    issues_found = True
+
+        if not issues_found:
+            # If no issues were found, print the required message
+            summary += " No Issues observed after Analyzing the Script\n"
+
+        summary += "---------------------------------------------\n"
         with open(self.log_file, 'a') as log_file:
             log_file.write(summary)
 
@@ -158,7 +169,7 @@ class ScriptAnalyzer:
                 lines = script_file.readlines()
                 total_lines = len(lines)
                 if total_lines > EXPECTED_LINE_COUNT:
-                    logging.warning(f"Total number of lines ({total_lines}) exceeds the recommended maximum of 2000 lines.")
+                    logging.warning(f'Total number of lines ({total_lines}) exceeds the recommended maximum of {EXPECTED_LINE_COUNT} lines.')
                     self.counts['total_lines_check'] += 1
             logging.info(f"Total lines check completed - Count: {self.counts['total_lines_check']}")
         except FileNotFoundError:
@@ -436,8 +447,9 @@ def send_email(sender_email, sender_password, recipient_email, attachment_path, 
     body += "<u><b><font size='4.5' color='#000000'>Summary:</font></b></u><br><br>"
 
     # Create a table for counts with added CSS for better styling
-    table = "<table style='border-collapse: collapse; border: 4px solid black; width: 50%; background-color: #D3D3D3; margin-left: auto; margin-right: auto;'>"
+    table = "<table style='border-collapse: collapse; border: 4px solid black; width: 50%; background-color: #F0F0F0; margin-left: auto; margin-right: auto;'>"
     table += "<tr><th style='border: 2px solid black; padding: 15px; text-align: left; background-color: #ADD8E6; color: black;'><b>Code Quality Metric</b></th><th style='border: 2px solid black; padding: 15px; text-align: center; background-color: #ADD8E6; color: black; padding-left: 10px; padding-right: 10px;'><b>Anomaly Frequency</b></th></tr>"
+    
 
     # Define a dictionary to map the check names to more understandable terms
     check_names = {
