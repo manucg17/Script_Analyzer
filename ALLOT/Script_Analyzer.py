@@ -14,11 +14,16 @@ from email import encoders
 SMTP_SERVER = 'smtp-mail.outlook.com'
 SMTP_PORT = 587
 
-# Set global indentation, line count, and iteration values
+# Set global indentation, line count, iteration values and List of all module names
 SEQUENCE_LENGTH = 3  # Minimum number of lines in a sequence to consider it for refactoring
 REPETITION_THRESHOLD = 3  # Determine the threshold for suggesting refactoring as a function
 INDENTATION_SPACES = 4
 EXPECTED_LINE_COUNT = 1500
+MODULES_ALL = ["sys", "nedbg", "sys_util", "messages", "halApi", "hal_card", 
+               "productId", "aos_utils", "SysConfStorage", "HRM_Server", 
+               "HRM_State", "HRM_StateElection", "HRM_StateDisabledMaster", 
+               "HRM_StateDisabledSlave", "HRM_PeerClient", "HRM_SystemMgrClient", 
+               "HRM_StateStandby", "acprof", "platform", "HRM_DataSyncDefs"]
 ITERATION_VALUES = {
     'MAX_FUNCTION_COUNT': 3,  # Maximum number of functions expected in the script
     'MAX_SUBROUTINE_COUNT': 3  # Maximum number of subroutines expected in the script
@@ -213,7 +218,7 @@ class ScriptAnalyzer:
                         continue
 
                     if line.strip().startswith("typedef"):
-                        if not re.match(r'^typedef\s+\S+', line.strip()):
+                        if not re.match(r'^typedef\s+\S+\s+\S+;', line.strip()):
                             logging.warning(f"Syntax issue at line {line_number}: Incorrect syntax - Typedef.")
                         continue
 
@@ -253,30 +258,44 @@ class ScriptAnalyzer:
             logging.error(f"Error during indentation check: {str(e)}")
 
     def check_naming_conventions(self):
+        reserved_names = ['int', 'short', 'long', 'long long', 'float', 'double', 'long double', 'char', 'wchar_t', 'char16_t', 'char32_t', 'bool', 'void', 'enum', 'struct', 'union']
         try:
             with open(self.script_path, "r") as script_file:
                 for line_number, line in enumerate(script_file, start=1):
                     line = line.strip()
 
-                    # Check for symbols prefix
-                    if line.startswith("MODULE_"):
-                        logging.warning(f"Symbol with prefix 'MODULE_' found at line {line_number}")
-                        self.counts['naming_conventions_check'] += 1
+                    # Check for symbols prefix corresponding to all module names
+                    for module in MODULES_ALL:
+                        if line.startswith(module + "::"):
+                            logging.warning(f"Symbol with prefix '{module}::' found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
 
-                    # Check for lower-case variables/functions
-                    if re.match(r'^[a-z_]\w*\(.*\)\s*{?$', line):
-                        logging.warning(f"Variable/function not starting with lower-case letter found at line {line_number}")
-                        self.counts['naming_conventions_check'] += 1
+                    # Check for lower-case variables/functions with reserved data types
+                    if re.match(r'^\s*(?:' + '|'.join(reserved_names) + r')\s+[a-z_]\w*\s*;', line.strip()):
+                        # Check if the variable or function name is not in lowercase
+                        if not re.match(r'^\s*(?:' + '|'.join(reserved_names) + r')\s+[a-z_]\w*\s*;', line.strip()):
+                            logging.warning(f"Variable/function not starting with lower-case letter found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
+
+
 
                     # Check for upper-case types/classes
-                    if re.match(r'^[A-Z]\w*\s+\w+(?:::\w+)?\s*{?$', line):
-                        logging.warning(f"Type/class not starting with upper-case letter found at line {line_number}")
-                        self.counts['naming_conventions_check'] += 1
+                    if re.match(r'\b(class|struct|enum|union|namespace)\s', line):
+                        if not re.match(r'\b(class|struct|enum|union|namespace)\s+[A-Z]\w*\s+\w+(?:::\w+)?\s*{?$', line):
+                            logging.warning(f"class names not starting with Upper-Case letter found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
+                    
+                    # Check for upper case type/class name or the TYPE keyword convention
+                    if (re.search(r'\bTYPE\s', line) and re.search(r';\s*END\s+TYPE\s', line)):
+                        if not (re.search(r'\bTYPE\s*\(\s*[a-zA-Z]+\s*\)\s*;', line) and re.search(r';\s*END\s+TYPE\s+[a-zA-Z]+\s*;', line)):
+                            logging.warning(f"TYPE keyword not starting with Upper-Case letter found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
 
                     # Check for upper-case constants
                     if re.match(r'^#define\s+[A-Z_]+\s+', line):
-                        logging.warning(f"Constant not all upper-case found at line {line_number}")
-                        self.counts['naming_conventions_check'] += 1
+                        if re.match(r'#define [A-Z_]+ .*', line):
+                            logging.warning(f"Constant not all upper-case found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
 
                     # Check for global variables starting with 'g_'
                     if re.match(r'\b(g_[a-zA-Z_]\w*)\b', line):
@@ -284,14 +303,17 @@ class ScriptAnalyzer:
                         self.counts['naming_conventions_check'] += 1
 
                     # Check for members starting with 'm_'
-                    if re.match(r'\b(m_[a-zA-Z_]\w*)\b', line):
-                        logging.warning(f"Member not starting with 'm_' found at line {line_number}")
-                        self.counts['naming_conventions_check'] += 1
+                    if re.match(r'(\w+)::\1', line):
+                        if not re.match(r'(\w+)::\1\s*\((.*?)\)\s*:\s*\w+\s*\([^)]*\)\s*(?:...).*m_\w+\s*\([^)]*\)*\s*{', line):
+                            logging.warning(f"Member not starting with 'm_' found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
 
                     # Check for pointers starting with 'p'
-                    if re.search(r'\b\w+\s*\*\s*p[A-Za-z_]\w*', line):
-                        logging.warning(f"Pointer not starting with 'p' found at line {line_number}")
-                        self.counts['naming_conventions_check'] += 1
+                    for match in re.finditer(r'(?<!/)\*\s*\w+', line):
+                        word = match.group()[1:].lstrip()
+                        if not word.startswith('p'):
+                            logging.warning(f"Pointer not starting with 'p', word: '{word}' and found at line {line_number}")
+                            self.counts['naming_conventions_check'] += 1
 
             logging.info(f"Naming conventions check completed - Count: {self.counts['naming_conventions_check']}")
 

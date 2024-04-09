@@ -1,0 +1,119 @@
+2024-04-09 17:13:09,423 - INFO - Starting Script Analysis.
+2024-04-09 17:13:09,439 - WARNING - Total number of lines (1644) exceeds the recommended maximum of 1500 lines.
+2024-04-09 17:13:09,439 - INFO - Total lines check completed - Count: 1
+2024-04-09 17:13:09,441 - WARNING - Indentation issue at line 132: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,441 - WARNING - Indentation issue at line 161: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,443 - WARNING - Brace placement issue at line 504: Opening brace should be on the same line as the control statement.
+2024-04-09 17:13:09,443 - WARNING - Indentation issue at line 509: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,480 - WARNING - Brace placement issue at line 526: Opening brace should be on the same line as the control statement.
+2024-04-09 17:13:09,480 - WARNING - Indentation issue at line 529: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,480 - WARNING - Brace placement issue at line 534: Opening brace should be on the same line as the control statement.
+2024-04-09 17:13:09,480 - WARNING - Indentation issue at line 582: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,480 - WARNING - Indentation issue at line 583: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,481 - WARNING - Indentation issue at line 776: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,482 - WARNING - Brace placement issue at line 897: Opening brace should be on the same line as the control statement.
+2024-04-09 17:13:09,482 - WARNING - Brace placement issue at line 926: Opening brace should be on the same line as the control statement.
+2024-04-09 17:13:09,483 - WARNING - Brace placement issue at line 1165: Opening brace should be on the same line as the control statement.
+2024-04-09 17:13:09,483 - WARNING - Indentation issue at line 1210: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,483 - WARNING - Indentation issue at line 1211: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,484 - WARNING - Indentation issue at line 1299: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,484 - WARNING - Indentation issue at line 1358: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,485 - WARNING - Indentation issue at line 1359: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,485 - WARNING - Indentation issue at line 1360: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,485 - WARNING - Indentation issue at line 1417: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,485 - WARNING - Indentation issue at line 1418: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,485 - WARNING - Indentation issue at line 1419: TAB space used. Convert TABs to spaces.
+2024-04-09 17:13:09,486 - INFO - Indentation check completed - Count: 22
+2024-04-09 17:13:09,488 - WARNING - Pointer not starting with 'p', word: '__redundancy_status_str' and found at line 26
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 28
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 29
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 30
+2024-04-09 17:13:09,489 - WARNING - Pointer not starting with 'p', word: '60' and found at line 30
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 33
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 34
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 35
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 36
+2024-04-09 17:13:09,489 - WARNING - Constant not all upper-case found at line 37
+2024-04-09 17:13:09,489 - WARNING - Pointer not starting with 'p', word: 'data' and found at line 44
+2024-04-09 17:13:09,489 - WARNING - Pointer not starting with 'p', word: 'context' and found at line 44
+2024-04-09 17:13:09,490 - WARNING - Pointer not starting with 'p', word: 'hrmSrv' and found at line 57
+2024-04-09 17:13:09,490 - WARNING - Pointer not starting with 'p', word: 'eventData' and found at line 58
+2024-04-09 17:13:09,490 - WARNING - Pointer not starting with 'p', word: 'data' and found at line 77
+2024-04-09 17:13:09,490 - WARNING - Pointer not starting with 'p', word: 'context' and found at line 77
+2024-04-09 17:13:09,490 - WARNING - Pointer not starting with 'p', word: 'hrmSrv' and found at line 90
+2024-04-09 17:13:09,490 - WARNING - Pointer not starting with 'p', word: 'In' and found at line 99
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'a' and found at line 100
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'the' and found at line 101
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'completed' and found at line 102
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'data' and found at line 112
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'context' and found at line 112
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'hrmSrv' and found at line 122
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'data' and found at line 146
+2024-04-09 17:13:09,491 - WARNING - Pointer not starting with 'p', word: 'context' and found at line 146
+2024-04-09 17:13:09,492 - WARNING - Pointer not starting with 'p', word: 'hrmSrv' and found at line 155
+2024-04-09 17:13:09,492 - WARNING - Pointer not starting with 'p', word: 'context' and found at line 171
+2024-04-09 17:13:09,492 - WARNING - Pointer not starting with 'p', word: 'hrmSrv' and found at line 178
+2024-04-09 17:13:09,492 - WARNING - Symbol with prefix 'HRM_Server::' found at line 188
+2024-04-09 17:13:09,492 - WARNING - Member not starting with 'm_' found at line 188
+2024-04-09 17:13:09,493 - WARNING - Pointer not starting with 'p', word: 'engine' and found at line 188
+2024-04-09 17:13:09,493 - WARNING - Symbol with prefix 'HRM_Server::' found at line 220
+2024-04-09 17:13:09,494 - WARNING - Pointer not starting with 'p', word: 'cbData' and found at line 266
+2024-04-09 17:13:09,494 - WARNING - Pointer not starting with 'p', word: 'cbData' and found at line 284
+2024-04-09 17:13:09,495 - WARNING - class names not starting with Upper-Case letter found at line 332
+2024-04-09 17:13:09,496 - WARNING - Pointer not starting with 'p', word: '60' and found at line 423
+2024-04-09 17:13:09,497 - WARNING - Pointer not starting with 'p', word: '60' and found at line 424
+2024-04-09 17:13:09,504 - WARNING - Pointer not starting with 'p', word: '1000' and found at line 589
+2024-04-09 17:13:09,505 - WARNING - Pointer not starting with 'p', word: 'st' and found at line 611
+2024-04-09 17:13:09,505 - WARNING - Pointer not starting with 'p', word: 'oldSt' and found at line 613
+2024-04-09 17:13:09,506 - WARNING - Pointer not starting with 'p', word: 'cliHndl' and found at line 681
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'If' and found at line 818
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'In' and found at line 819
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'is' and found at line 820
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'Once' and found at line 821
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'In' and found at line 822
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'can' and found at line 823
+2024-04-09 17:13:09,507 - WARNING - Pointer not starting with 'p', word: 'automatically' and found at line 824
+2024-04-09 17:13:09,511 - WARNING - Pointer not starting with 'p', word: 'cb_data' and found at line 1119
+2024-04-09 17:13:09,511 - WARNING - class names not starting with Upper-Case letter found at line 1154
+2024-04-09 17:13:09,511 - WARNING - Pointer not starting with 'p', word: 'cb_data' and found at line 1188
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'The' and found at line 1194
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'successfully' and found at line 1195
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'HRM' and found at line 1196
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'fails' and found at line 1197
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'need' and found at line 1198
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'Instead' and found at line 1200
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'and' and found at line 1201
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'moved' and found at line 1202
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'rebooted' and found at line 1203
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'This' and found at line 1205
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'active' and found at line 1206
+2024-04-09 17:13:09,512 - WARNING - Pointer not starting with 'p', word: 'standby' and found at line 1207
+2024-04-09 17:13:09,513 - WARNING - Pointer not starting with 'p', word: 'again' and found at line 1208
+2024-04-09 17:13:09,515 - WARNING - Pointer not starting with 'p', word: 'cbData' and found at line 1393
+2024-04-09 17:13:09,516 - WARNING - Pointer not starting with 'p', word: 'checkName' and found at line 1495
+2024-04-09 17:13:09,516 - WARNING - Pointer not starting with 'p', word: 'cb_data' and found at line 1543
+2024-04-09 17:13:09,517 - WARNING - class names not starting with Upper-Case letter found at line 1545
+2024-04-09 17:13:09,517 - WARNING - class names not starting with Upper-Case letter found at line 1546
+2024-04-09 17:13:09,520 - INFO - Naming conventions check completed - Count: 70
+2024-04-09 17:13:09,524 - WARNING - Repetition detected: Sequence 'default:
+        NE_DEBUG(DL_WARNING,
+                 ("%s - Unknown m_hrmMode %d - ignore it",__FUNCTION__,m_hrmMode));' repeated 3 times. Consider refactoring as a function. Lines: 543, 572, 940
+2024-04-09 17:13:09,524 - INFO - Modularization check completed - Count: 1
+2024-04-09 17:13:09,525 - INFO - File is UTF-8 encoded - Expected
+2024-04-09 17:13:09,525 - INFO - File encoding check completed - Count: 0
+2024-04-09 17:13:09,528 - INFO - Consistency check completed - Count: 0
+2024-04-09 17:13:09,530 - INFO - Excess whitespace check completed - Count: 0
+2024-04-09 17:13:09,531 - INFO - Script Analysis completed.
+
+
+---------------------------------------------
+
+  Summary of Issues observed:
+--------------------------------
+	Check				 Count
+--------------------------------
+ total_lines_check        1
+ indentation_check        22
+ naming_conventions_check 70
+ modularization_check     1
+---------------------------------------------
